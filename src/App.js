@@ -37,20 +37,17 @@ function formatDay(dateStr) {
 
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      location: 'lisbon',
-      isLoading: false,
-      displayLocation: '',
-      weather: null,
-      error: ''
-    }
-    this.fetchWeather = this.fetchWeather.bind(this);
+  state = {
+    location: 'lisbon',
+    isLoading: false,
+    displayLocation: '',
+    weather: null,
+    error: ''
   }
 
-  async fetchWeather() {
+  fetchWeather = async () => {
     try {
+    if(this.state.location.length <= 2) return
     this.setState({ isLoading: true, error: '' });
     const location = this.state.location.trim();
     if (!location) throw new Error("Enter a location to search.");
@@ -94,13 +91,22 @@ class App extends React.Component {
     this.setState({ isLoading: false });
   }
   }
+
+  componentDidMount() {
+    this.fetchWeather();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.location !== this.state.location) {
+      this.fetchWeather();
+    }
+  }
+  onChangeLocation = (e) => this.setState({ location: e.target.value })
   render() {
     return <div className="app">
       <h1>Classy Weather</h1>
-        <div>
-        <input type="text" placeholder="Search for location" value={this.state.location} onChange={(e) => this.setState({ location: e.target.value })} />
-        </div>
-        <button onClick={this.fetchWeather}>Get Weather</button>
+        <Input location={this.state.location} onChangeLocation={this.onChangeLocation}/>
+        {/* <button onClick={this.fetchWeather}>Get Weather</button> */}
         {this.state.isLoading && <p className='loader'>Loading...</p>}
         {this.state.error && <p role="alert">{this.state.error}</p>}
 
@@ -111,6 +117,14 @@ class App extends React.Component {
 
 export default App;
 
+class Input extends React.Component {
+  render() {
+    return(<div>
+        <input type="text" placeholder="Search for location" value={this.props.location} 
+        onChange={this.props.onChangeLocation} />
+        </div>)
+  }
+}
 class Weather extends React.Component {
   render() {
     const { temperature_2m_max:max ,
@@ -158,3 +172,4 @@ class Day extends React.Component {
     </li>)
   }
 }
+
