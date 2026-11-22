@@ -47,7 +47,7 @@ class App extends React.Component {
 
   fetchWeather = async () => {
     try {
-    if(this.state.location.length <= 2) return
+    if(this.state.location.length <= 2) return this.setState({ weather: {}})
     this.setState({ isLoading: true, error: '' });
     const location = this.state.location.trim();
     if (!location) throw new Error("Enter a location to search.");
@@ -93,12 +93,17 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchWeather();
+    // this.fetchWeather();
+    this.setState({ location: localStorage.getItem('location') || ''})
+
+
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.location !== this.state.location) {
       this.fetchWeather();
+
+    localStorage.setItem('location', this.state.location);
     }
   }
   onChangeLocation = (e) => this.setState({ location: e.target.value })
@@ -126,6 +131,9 @@ class Input extends React.Component {
   }
 }
 class Weather extends React.Component {
+  componentWillUnmount() {
+    console.log('Weather Component will Unmount')
+  }
   render() {
     const { temperature_2m_max:max ,
       temperature_2m_min:min ,
